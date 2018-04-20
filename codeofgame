@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>try</title>
+    <style>
+        #id-canvas{
+            border: 1px solid black;
+            float:left;
+        }
+        #id-div{
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<canvas id="id-canvas" width="500" height="600"></canvas>
+<div id="id-div">
+    <p id="id-information">游戏信息
+    </p>
+    <p id="id-grade"></p>
+    <p id="id-hp"></p>
+    <p id="id-speedofairport"></p>
+    <p id="id-speedofbullet"></p>
+
+</div>
+<script>
+    var limit=true
+    var limitoftime=true
+    var canvas=document.getElementById("id-canvas")
+    var context=canvas.getContext("2d")
+    var gradelabel=document.getElementById("id-grade")
+    grade=0
+    var positionofx=250
+    var positionofy=500
+    var spofairport=10
+    var movetoleft=false
+    var movetoright=false
+    var div=document.getElementById("id-div")
+    var badgelist=[]
+    var badgeoklist=[]
+    var firstenemy=new Image()
+    firstenemy.src="enemy.jpg"
+    firstenemy.onload=function(){
+        context.drawImage(firstenemy,60,60)
+    }
+    var bulletlist=[]
+    var time=1
+    var hp=3
+    var spofbullet=3
+    var buofenemy=[]
+    var img=new Image()
+    img.src="airport.jpg"
+    img.onload=function(){
+        context.drawImage(img,positionofx,positionofy)
+    }
+    var enexandylist=[]
+    window.addEventListener("keydown",function(event){
+        var key=event.key
+        if (key=="a"){
+            movetoleft=true
+        }
+        else if(key=="d"){
+            movetoright=true
+        }
+        if(key=="j"){
+            bulletlist.push({bofx:positionofx+12,bofy:positionofy-20})
+        }
+    })
+    enemyoklist=[]
+    for(var i=0;i<5;i+=1){
+        var enemy=new Image()
+        enemy.src="enemy.jpg"
+        enemyoklist.push(enemy)
+        enexandylist.push({x:(i+1)*80,y:0})
+    }
+    function getenemybulist(){
+        var list=[]
+        var order=Math.floor(Math.random()*2)
+        var spofx=Math.floor(Math.random()*10)/3
+        var spofy=Math.floor(Math.sqrt(100-spofx*spofx))/3
+        list.push(order)
+        list.push(spofx)
+        list.push(spofy)
+        return list
+    }
+    var time1=300
+    var time2=350
+    var time3=210
+    var time4=260
+    var time5=390
+    function enemybu(list){
+        if(time%time1==1){
+            buofenemy.push({bueofx:enexandylist[0].x,bueofy:enexandylist[0].y,speedofx:list[1],speedofy:list[2],orderofbu:list[0]})
+        }
+        else if(time%time2==1){
+            buofenemy.push({bueofx:enexandylist[1].x,bueofy:enexandylist[1].y,speedofx:list[1],speedofy:list[2],orderofbu:list[0]})
+        }
+        else if(time%time3==1){
+            buofenemy.push({bueofx:enexandylist[2].x,bueofy:enexandylist[2].y,speedofx:list[1],speedofy:list[2],orderofbu:list[0]})
+        }
+        else if(time%time4==1){
+            buofenemy.push({bueofx:enexandylist[3].x,bueofy:enexandylist[3].y,speedofx:list[1],speedofy:list[2],orderofbu:list[0]})
+        }
+        else if(time%time5==1){
+            buofenemy.push({bueofx:enexandylist[4].x,bueofy:enexandylist[4].y,speedofx:list[1],speedofy:list[2],orderofbu:list[0]})
+        }
+    }
+    function improve(){
+        var list=[]
+        var order=Math.floor(Math.random()*2)
+        var spofx=(Math.floor(Math.random()*10)/3)*1.2
+        var spofy=(Math.floor(Math.sqrt(100-spofx*spofx))/3)*1.5
+        list.push(order)
+        list.push(spofx)
+        list.push(spofy)
+        return list
+    }
+
+    function changeorder(){
+        if(movetoleft && positionofx>0){
+            positionofx-=spofairport
+        }
+        if(movetoright && positionofx<460){
+            positionofx+=spofairport
+        }
+        for(var i=0;i<bulletlist.length;i+=1){
+            bulletlist[i].bofy-=spofbullet
+        }
+        for(var i=0;i<enexandylist.length;i+=1){
+            enexandylist[i].y+=0.6
+        }
+        for(var i=0;i<buofenemy.length;i+=1){
+            if(buofenemy[i].orderofbu==1){
+                buofenemy[i].bueofx-=buofenemy[i].speedofx
+            }
+            else{
+                buofenemy[i].bueofx+=buofenemy[i].speedofx
+            }
+            buofenemy[i].bueofy+=buofenemy[i].speedofy
+        }
+        for(var i=0;i<badgelist.length;i+=1){
+            badgelist[i].y+=1.5
+        }
+    }
+    var background=new Image()
+    background.src="background.jpg"
+
+    var radiusofenemybu=10
+    function draw(){
+        //消除矩形框
+        context.clearRect(0,0,canvas.width,canvas.height)
+        //加载background
+        context.drawImage(background,0,0)
+
+        //画飞机
+        context.drawImage(img,positionofx,positionofy)
+        //画子弹
+        for(var i=0;i<bulletlist.length;i+=1){
+            context.beginPath()
+            context.fillStyle = "red"
+            context.fillRect(bulletlist[i].bofx, bulletlist[i].bofy,15,20)
+        }
+        //画敌船
+        for(var i=0;i<enemyoklist.length;i+=1){
+            context.drawImage(enemyoklist[i],enexandylist[i].x,enexandylist[i].y)
+        }
+        // for(var i=0;i<enemylist.length;i+=1){
+        //         context.drawImage(enemylist[i].img,enemylist[i].x,enemylist[i].y)
+        // }
+        //画敌船子弹
+        for(var i=0;i<buofenemy.length;i+=1){
+            context.beginPath()
+            context.arc(buofenemy[i].bueofx,buofenemy[i].bueofy,radiusofenemybu,0,2*Math.PI);
+            context.fillStyle="#BDB76B"
+            context.fill()
+        }
+        //画badge
+        for(var i=0;i<badgelist.length;i+=1){
+            context.drawImage(badgeoklist[i],badgelist[i].x,badgelist[i].y)
+
+        }
+        //显示hp
+        var pofhp=document.getElementById("id-hp")
+        pofhp.innerHTML="战机当前生命值为"+hp;
+        //显示speedofairport
+        var sofairport=document.getElementById("id-speedofairport")
+        sofairport.innerHTML="战机移动速度为"+spofairport
+        //显示sofbullet
+        var sofbullet=document.getElementById("id-speedofbullet")
+        sofbullet.innerHTML="战机子弹移动速度为"+spofbullet
+        //显示grade
+        gradelabel.innerHTML="击毁敌机数量为"+grade
+        if(grade==20 && limit){
+            for(var i=0;i<enexandylist.length;i+=1){
+                enexandylist[i].hp=2
+            }
+            limit=false
+        }
+        //change敌机发射时间
+        if(grade==30 && limitoftime){
+            time1-=100
+            time2-=100
+            time3-=100
+            time4-=100
+            time5-=100
+            limitoftime=false
+        }
+        if(grade==10){
+            radiusofenemybu=20
+        }
+        time+=1
+        movetoleft=false
+        movetoright=false
+    }
+    function getrandom(){
+        var num=Math.floor((Math.random()*100))
+        if (num%9==0){
+            return true
+        }
+        else{
+            return false
+        }
+    }
+    function reward(){
+        for(var i=0;i<badgelist.length;i+=1){
+            if((-35<(positionofx-badgelist[i].x) && (positionofx-badgelist[i].x)<25)&& positionofy-badgelist[i].y<10){
+                badgeoklist.splice(i,1)
+                badgelist.splice(i,1)
+                var rewardnum=Math.floor(Math.random()*3)
+                if(rewardnum==0){
+                    //飞机移动速度增加
+                    spofairport+=5
+                    var news=document.createElement("p")
+                    var content=document.createTextNode("飞船移动速度增加");
+                    news.appendChild(content)
+                    div.appendChild(news)
+                }
+                else if(rewardnum==1){
+                    //飞机子弹速度增加
+                    spofbullet+=1.5
+                    var news=document.createElement("p")
+                    var content=document.createTextNode("飞船子弹移动速度增加");
+                    news.appendChild(content)
+                    div.appendChild(news)
+                }
+                else if(rewardnum==2){
+                    hp+=1
+                    var news=document.createElement("p")
+                    var content=document.createTextNode("增加一条命")
+                    news.appendChild(content)
+                    div.appendChild(news)
+                }
+            }
+        }
+    }
+    function newcd(){
+        for(var i=0;i<bulletlist.length;i+=1){
+            for(var k=0;k<enexandylist.length;k+=1){
+                if((-10<(bulletlist[i].bofx-enexandylist[k].x) &&(bulletlist[i].bofx-enexandylist[k].x)<50) && Math.abs(enexandylist[k].y-bulletlist[i].bofy)<20){
+                    enexandylist[k].hp-=1
+                    bulletlist.splice(i,1)
+                }
+                console.log(enexandylist[2].hp)
+                if(enexandylist[k].hp<=0){
+                    var oldy=enexandylist[k].y
+                    enexandylist[k].y-=350
+                    grade+=1
+                    if(getrandom()){
+                        var badge=new Image()
+                        badge.src="badge.png"
+                        badgeoklist.push(badge)
+                        badgelist.push({x:enexandylist[k].x,y:oldy})
+                    }
+                    enexandylist[k].hp=2
+                }
+            }
+        }
+    }
+    function cd(){
+        for (var i=0;i<bulletlist.length;i+=1){
+            for(var k=0;k<enexandylist.length;k+=1){
+                if((-10<(bulletlist[i].bofx-enexandylist[k].x) &&(bulletlist[i].bofx-enexandylist[k].x)<50) && Math.abs(enexandylist[k].y-bulletlist[i].bofy)<20){
+                    var oldy=enexandylist[k].y
+                    enexandylist[k].y=-120
+                    bulletlist.splice(i,1)
+                    grade+=1
+                    if(getrandom()){
+                        var badge=new Image()
+                        badge.src="badge.png"
+                        badgeoklist.push(badge)
+                        badgelist.push({x:enexandylist[k].x,y:oldy})
+                    }
+                }
+            }
+        }
+        for(var i=0;i<enexandylist.length;i+=1){
+            if(Math.abs(positionofx-enexandylist[i].x)<30 && Math.abs(positionofy-enexandylist[i].y)<20){
+                hp-=1
+                enexandylist[i].y-=600
+                break
+            }
+            if(hp==0){
+                alert("game over")
+                break
+            }
+        }
+    }
+    function sortit(){
+        for (var i=0;i<bulletlist.length;i+=1){
+            if(bulletlist[i].bofy<0){
+                bulletlist.splice(i,1)
+            }
+        }
+        for(var i=0;i<enexandylist.length;i+=1){
+            if(enexandylist[i].y>600){
+                enexandylist[i].y-=800
+            }
+        }
+        for(var i=0;i<buofenemy.length;i+=1){
+            if(buofenemy[i].bueofx<0 || buofenemy[i].y>600 || buofenemy[i].bueofx>500){
+                buofenemy.splice(i,1)
+            }
+        }
+    }
+    function buzico(){
+        for(var i=0;i<buofenemy.length;i+=1){
+            if((buofenemy[i].bueofx>positionofx && (buofenemy[i].bueofx-positionofx)<35)&& (buofenemy[i].bueofy-positionofy>10 &&buofenemy[i].bueofy-positionofy<40 )){
+                hp-=1
+                buofenemy.splice(i,1)
+                break
+            }
+            if(hp==0){
+                alert("game over")
+                break
+            }
+        }
+    }
+    function enemyimprove(){
+        if(grade<=30){
+            enemybu(getenemybulist())
+        }
+        else{
+            enemybu(improve())
+        }
+    }
+    function gamegoon(){
+        changeorder()
+        enemyimprove()
+        if(grade<20){
+            cd()
+        }
+        else{
+            newcd()
+        }
+        reward()
+        buzico()
+        sortit()
+        draw()
+    }
+    setInterval(gamegoon,1000/60)
+</script>
+</body>
+</html>
